@@ -14,10 +14,14 @@ import java.time.Duration;
  */
 public class Billboard implements IBillboard
 {
-
+    public void sayElo()
+    {
+        System.out.println("ELO");
+    }
     @Override
-    public boolean addAdvertisement(String advertText, Duration displayPeriod, int orderId) throws RemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public boolean addAdvertisement(String advertText, Duration displayPeriod, int orderId) throws RemoteException 
+    {
+        return true;
     }
 
     @Override

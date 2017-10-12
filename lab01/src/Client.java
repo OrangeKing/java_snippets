@@ -15,7 +15,8 @@ public class Client implements IClient
 {
 
     @Override
-    public void setOrderId(int orderId) throws RemoteException {
+    public void setOrderId(int orderId) throws RemoteException 
+    {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

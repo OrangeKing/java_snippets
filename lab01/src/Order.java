@@ -24,7 +24,5 @@ public class Order implements Serializable
         this.displayPeriod = displayPeriod;
         this.client = client;
     }
-  
-
 }
 
