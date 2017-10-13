@@ -23,3 +23,9 @@ hs_err_pid*
 /lab01/nbproject/private/
 /lab01/build/
 /lab01/dist/
+/RMI/nbproject/private/
+/RMI/build/
+/RMI/dist/
+/rmi_hello/nbproject/private/
+/rmi_hello/dist/
+/rmi_hello/build/

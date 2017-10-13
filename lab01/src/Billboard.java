@@ -14,10 +14,6 @@ import java.time.Duration;
  */
 public class Billboard implements IBillboard
 {
-    public void sayElo()
-    {
-        System.out.println("ELO");
-    }
     @Override
     public boolean addAdvertisement(String advertText, Duration displayPeriod, int orderId) throws RemoteException 
     {
@@ -25,27 +21,32 @@ public class Billboard implements IBillboard
     }
 
     @Override
-    public boolean removeAdvertisement(int orderId) throws RemoteException {
+    public boolean removeAdvertisement(int orderId) throws RemoteException 
+    {
+        return true;
+    }
+
+    @Override
+    public int[] getCapacity() throws RemoteException 
+    {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public int[] getCapacity() throws RemoteException {
+    public void setDisplayInterval(Duration displayInterval) throws RemoteException 
+    {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void setDisplayInterval(Duration displayInterval) throws RemoteException {
+    public boolean start() throws RemoteException 
+    {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public boolean start() throws RemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public boolean stop() throws RemoteException {
+    public boolean stop() throws RemoteException 
+    {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

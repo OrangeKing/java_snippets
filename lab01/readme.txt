@@ -1,11 +1,8 @@
 Banner reklamowy wyswietlajacy tekst;
+dopuszczalne wiele wiele tablic;
+kilka plików main (manager + klient)
 
-applikacja = klasa z mainem (kilka w projekcie)
-
-mozliwe kilka tablic
-
-metody ma wywolywac manager
-
+manager jest klasą wykonującą metody
 obiekt rejestrowany w rejestrze RMI
 (bind rebind lookup)
 
