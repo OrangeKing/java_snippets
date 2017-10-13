@@ -170,7 +170,7 @@ public class Client extends JFrame implements IClient
         {
             Registry registry = LocateRegistry.getRegistry(host);
             IManager stub = (IManager) registry.lookup("Manager");
-            int response = stub.trash();
+            boolean response = stub.withdrawOrder(15);
             System.out.println(response);
        } 
        catch (Exception e) 
