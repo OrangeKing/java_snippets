@@ -172,7 +172,14 @@ public class Client extends JFrame implements IClient
             orderID = Integer.parseInt(jFormattedTextField2.getText());
             Order newOrder = new Order(advert, Duration.ofSeconds(duration),this);
             setOrderId(orderID, newOrder);
-           
+            
+            
+            Registry registry = LocateRegistry.getRegistry(1099);
+            IManager stub_manager = (IManager) registry.lookup("Manager");
+            IBillboard stub_billboard = (IBillboard) registry.lookup("Billboard0");
+            
+            stub_billboard.addAdvertisement(advert, Duration.ofSeconds(duration), orderID);
+            stub_manager.placeOrder(newOrder);
         } 
         catch (Exception e) 
         {
