@@ -6,6 +6,7 @@ import javax.swing.JFrame;
 import java.awt.event.KeyAdapter;
 import javax.swing.JOptionPane;
 import java.time.Duration;
+import java.util.ArrayList;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -22,11 +23,16 @@ public class Client extends JFrame implements IClient
     // Variables declaration - do not modify                     
     private javax.swing.JButton jButton1;
     private javax.swing.JFormattedTextField jFormattedTextField1;
+    private javax.swing.JFormattedTextField jFormattedTextField2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JTextField jTextField1;
-    // End of variables declaration        
+
+    // End of variables declaration    
+    
+    private ArrayList<Order> orders = new ArrayList<Order>();
 
 
     private Client() 
@@ -34,15 +40,17 @@ public class Client extends JFrame implements IClient
         initComponents();
     }
     
+
     private void initComponents() 
     {
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jTextField1 = new javax.swing.JTextField();
         jFormattedTextField1 = new javax.swing.JFormattedTextField();
-
+        jFormattedTextField2 = new javax.swing.JFormattedTextField();   
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Client");
 
@@ -51,6 +59,7 @@ public class Client extends JFrame implements IClient
         jLabel1.setText("Ad text:");
 
         jLabel2.setText("Ad duration:");
+        jLabel3.setText("Order ID:");
 
         jButton1.setText("Place Order");
         jButton1.setEnabled(false); 
@@ -63,10 +72,13 @@ public class Client extends JFrame implements IClient
         jFormattedTextField1.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
         jFormattedTextField1.setToolTipText("duration in seconds");
         
+        jFormattedTextField2.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
+        jFormattedTextField2.setToolTipText("id in integer");
+
         KeyAdapter adapter = new java.awt.event.KeyAdapter(){
             public void keyReleased(java.awt.event.KeyEvent evt){
                 super.keyReleased(evt);
-                if (jTextField1.getText().length() > 0 && jFormattedTextField1.getText().length() > 0){
+                if (jTextField1.getText().length() > 0 && jFormattedTextField1.getText().length() > 0 && jFormattedTextField2.getText().length() > 0){
                     jButton1.setEnabled(true);
                 } 
                 else{
@@ -77,6 +89,7 @@ public class Client extends JFrame implements IClient
         
         jTextField1.addKeyListener(adapter);
         jFormattedTextField1.addKeyListener(adapter);
+        jFormattedTextField2.addKeyListener(adapter);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -94,11 +107,14 @@ public class Client extends JFrame implements IClient
                                 .addComponent(jLabel1)
                                 .addGap(71, 71, 71))
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel2)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel2)
+                                    .addComponent(jLabel3))
                                 .addGap(45, 45, 45)))
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 99, Short.MAX_VALUE)
-                            .addComponent(jFormattedTextField1))
+                            .addComponent(jFormattedTextField1)
+                            .addComponent(jFormattedTextField2, javax.swing.GroupLayout.Alignment.TRAILING))
                         .addGap(70, 70, 70))))
         );
         jPanel1Layout.setVerticalGroup(
@@ -112,7 +128,11 @@ public class Client extends JFrame implements IClient
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(jFormattedTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 100, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(jFormattedTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 71, Short.MAX_VALUE)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(49, 49, 49))
         );
@@ -137,19 +157,22 @@ public class Client extends JFrame implements IClient
         );
 
         pack();
-    }// </editor-fold>                        
+    }// </editor-fold>  
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) 
     {       
         String advert;
         int duration;
-
+        int orderID;
         advert = jTextField1.getText();
         
         try 
         {
             duration = Integer.parseInt(jFormattedTextField1.getText());
+            orderID = Integer.parseInt(jFormattedTextField2.getText());
             Order newOrder = new Order(advert, Duration.ofSeconds(duration),this);
+            setOrderId(orderID, newOrder);
+           
         } 
         catch (Exception e) 
         {
@@ -158,9 +181,20 @@ public class Client extends JFrame implements IClient
     }
 
     @Override
-    public void setOrderId(int orderId) throws RemoteException 
+    public void setOrderId(int orderId, Order order) throws RemoteException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if(orderId > orders.size())
+        {
+            orders.add(order);
+            System.err.println("Order added with id=" + orders.indexOf(order));
+
+        } 
+        else 
+        {
+            orders.add(orderId, order);
+            System.err.println("Order added with id=" + orderId);
+        }
+               
     }
     
     public static void main(String[] args)
@@ -169,9 +203,8 @@ public class Client extends JFrame implements IClient
         try 
         {
             Registry registry = LocateRegistry.getRegistry(host);
-            IManager stub = (IManager) registry.lookup("Manager");
-            boolean response = stub.withdrawOrder(15);
-            System.out.println(response);
+            IManager stub_manager = (IManager) registry.lookup("Manager");
+            IBillboard stub_billboard = (IBillboard) registry.lookup("Billboard");
        } 
        catch (Exception e) 
       {

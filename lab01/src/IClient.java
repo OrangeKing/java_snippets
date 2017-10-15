@@ -14,5 +14,5 @@ import java.rmi.RemoteException;
  */
 public interface IClient extends Remote  // host, port, nazwa
 {
-    public void setOrderId(int orderId) throws RemoteException;
+    public void setOrderId(int orderId, Order order) throws RemoteException;
 }

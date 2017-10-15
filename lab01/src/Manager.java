@@ -30,7 +30,7 @@ public class Manager extends JFrame implements IManager
     private javax.swing.JTable jTable2;
     // End of variables declaration    
 
-    private ArrayList<Billboard> billboards = new ArrayList<Billboard>();
+    private final ArrayList<Billboard> billboards = new ArrayList<Billboard>();
 
     public Manager() 
     {
@@ -174,7 +174,7 @@ public class Manager extends JFrame implements IManager
         Object rowData[] = new Object [4];
         rowData[0] = newBillboard;
         model.addRow(rowData);
-    }                                        
+    }                            
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) 
     {
@@ -193,23 +193,34 @@ public class Manager extends JFrame implements IManager
     /* JFrame end */
 
     @Override
-    public int bindBillboard(IBillboard billboard) throws RemoteException {
-        return 1;
+    public int bindBillboard(IBillboard billboard) throws RemoteException 
+    {
+        IBillboard stub_billboard = (IBillboard) UnicastRemoteObject.exportObject(billboard, 0);
+        // Bind the remote object's stub in the registry
+        Registry registry = LocateRegistry.getRegistry(1099);
+        registry.rebind("Billboard", stub_billboard); 
+        return 0;
     }
 
     @Override
-    public boolean unbindBillboard(int billboardId) throws RemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public boolean placeOrder(Order order) throws RemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public boolean withdrawOrder(int orderId) throws RemoteException {
+    public boolean unbindBillboard(int billboardId) throws RemoteException 
+    {
+        // Bind the remote object's stub in the registry
+        Registry registry = LocateRegistry.getRegistry(1099);
+        registry.unbind("Billboard"); 
         return true;
+    }
+
+    @Override
+    public boolean placeOrder(Order order) throws RemoteException 
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean withdrawOrder(int orderId) throws RemoteException 
+    {
+        return true; 
     }
 
     /* Main method below */
@@ -218,12 +229,11 @@ public class Manager extends JFrame implements IManager
         try 
         {
             Manager server = new Manager();
-            IManager stub = (IManager) UnicastRemoteObject.exportObject(server, 0);
+            IManager stub_manager = (IManager) UnicastRemoteObject.exportObject(server, 0);
 
             // Bind the remote object's stub in the registry
             Registry registry = LocateRegistry.createRegistry(1099);
-            registry.rebind("Manager", stub); //your line 24
-
+            registry.rebind("Manager", stub_manager); //your line 24
             System.err.println("Server ready");
         } 
         catch (Exception e) 
