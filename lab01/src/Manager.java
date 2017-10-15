@@ -34,6 +34,7 @@ public class Manager extends JFrame implements IManager
     // End of variables declaration    
 
     private final static ArrayList<Billboard> billboards = new ArrayList<Billboard>();
+    private final static ArrayList<Order> orders = new ArrayList<Order>();
 
     public Manager() 
     {
@@ -222,8 +223,6 @@ public class Manager extends JFrame implements IManager
         registry.rebind(billboardID, stub_billboard); 
         System.err.println("Billboard bound succesfully as " + billboardID);
         return 0;
-        
-   
     }
 
     @Override
@@ -247,12 +246,14 @@ public class Manager extends JFrame implements IManager
     @Override
     public boolean placeOrder(Order order) throws RemoteException 
     {
+        orders.add(order);
         return true;
     }
 
     @Override
     public boolean withdrawOrder(int orderId) throws RemoteException 
     {
+        orders.remove(orderId);
         return true; 
     }
 
