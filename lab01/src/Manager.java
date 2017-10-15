@@ -1,12 +1,15 @@
 
+import java.rmi.AccessException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.table.DefaultTableModel;
-
 import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -30,7 +33,7 @@ public class Manager extends JFrame implements IManager
     private javax.swing.JTable jTable2;
     // End of variables declaration    
 
-    private final ArrayList<Billboard> billboards = new ArrayList<Billboard>();
+    private final static ArrayList<Billboard> billboards = new ArrayList<Billboard>();
 
     public Manager() 
     {
@@ -38,6 +41,7 @@ public class Manager extends JFrame implements IManager
     }
 
     /* JFrame begin */
+    @SuppressWarnings("checked")
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
@@ -100,14 +104,22 @@ public class Manager extends JFrame implements IManager
         jButton1.setText("Add");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                try {
+                    jButton1ActionPerformed(evt);
+                } catch (RemoteException ex) {
+                    Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
 
         jButton2.setText("Remove");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                try {
+                    jButton2ActionPerformed(evt);
+                } catch (RemoteException ex) {
+                    Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
 
@@ -165,7 +177,7 @@ public class Manager extends JFrame implements IManager
     }// </editor-fold>                        
                        
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) throws RemoteException 
     {                  
         Billboard newBillboard = new Billboard();
         billboards.add(newBillboard);
@@ -174,12 +186,18 @@ public class Manager extends JFrame implements IManager
         Object rowData[] = new Object [4];
         rowData[0] = newBillboard;
         model.addRow(rowData);
+        
+        bindBillboard(newBillboard);
     }                            
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) 
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) throws RemoteException 
     {
         DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
         int[] rows = jTable2.getSelectedRows();
+        
+        String billboardId = "Billboard" + rows[0];
+        unbindBillboard(billboardId);
+
         if (jTable2.getSelectedRows().length != 0) 
         {
               for(int i=0;i<rows.length;i++)
@@ -191,30 +209,45 @@ public class Manager extends JFrame implements IManager
         
     }
     /* JFrame end */
-
+    
+    
+// element get on button to be passed into bind arg
+//                    Billboard component = billboards.get(0);
     @Override
     public int bindBillboard(IBillboard billboard) throws RemoteException 
     {
         IBillboard stub_billboard = (IBillboard) UnicastRemoteObject.exportObject(billboard, 0);
-        // Bind the remote object's stub in the registry
+        String billboardID = "Billboard" + billboards.indexOf(billboard);
         Registry registry = LocateRegistry.getRegistry(1099);
-        registry.rebind("Billboard", stub_billboard); 
+        registry.rebind(billboardID, stub_billboard); 
+        System.err.println("Billboard bound succesfully as " + billboardID);
         return 0;
+        
+   
     }
 
     @Override
-    public boolean unbindBillboard(int billboardId) throws RemoteException 
+    public boolean unbindBillboard(String billboardId) throws RemoteException, AccessException 
     {
         // Bind the remote object's stub in the registry
         Registry registry = LocateRegistry.getRegistry(1099);
-        registry.unbind("Billboard"); 
+        try 
+        {
+            registry.unbind(billboardId);
+        } 
+        catch (NotBoundException ex) 
+        {
+            Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        System.err.println(billboardId + " unbound successfully");
         return true;
     }
 
     @Override
     public boolean placeOrder(Order order) throws RemoteException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return true;
     }
 
     @Override
@@ -228,12 +261,12 @@ public class Manager extends JFrame implements IManager
     {
         try 
         {
-            Manager server = new Manager();
+            Manager server = new Manager();            
             IManager stub_manager = (IManager) UnicastRemoteObject.exportObject(server, 0);
 
             // Bind the remote object's stub in the registry
             Registry registry = LocateRegistry.createRegistry(1099);
-            registry.rebind("Manager", stub_manager); //your line 24
+            registry.rebind("Manager", stub_manager);
             System.err.println("Server ready");
         } 
         catch (Exception e) 

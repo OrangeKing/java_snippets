@@ -200,11 +200,13 @@ public class Client extends JFrame implements IClient
     public static void main(String[] args)
     {
         String host = (args.length < 1) ? null : args[0];
+        String billboard = (args.length < 2) ? "Billboard0" : args[0];
         try 
         {
             Registry registry = LocateRegistry.getRegistry(host);
             IManager stub_manager = (IManager) registry.lookup("Manager");
-            IBillboard stub_billboard = (IBillboard) registry.lookup("Billboard");
+            IBillboard stub_billboard = (IBillboard) registry.lookup(billboard);
+            System.err.println("Connected to: " + billboard);
        } 
        catch (Exception e) 
       {
