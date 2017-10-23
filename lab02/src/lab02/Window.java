@@ -5,16 +5,99 @@
  */
 package lab02;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Objects;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author Norbert
  */
-public class Window extends javax.swing.JFrame {
+public class Window extends javax.swing.JFrame 
+{
+    
+    String classPath;
+    Class workingClass;
+
+    static Class loadClass(String classPath) 
+    {
+        MyClassLoader loader = new MyClassLoader("Remote");
+
+        try 
+        {
+          Class workingClass = loader.loadClass(classPath);
+          return workingClass;
+
+        } 
+        catch (ClassNotFoundException e) 
+        {
+          e.printStackTrace();
+          return null;
+        }
+    }
+    
+    void printClassMethods(Class c) 
+    {
+        Method[] theMethods = c.getMethods();
+        for (Method theMethod : theMethods) 
+        {
+            String methodString = theMethod.getName();
+            String returnString = theMethod.getReturnType().getName();
+            DefaultTableModel model = (DefaultTableModel) classMethodsTable.getModel();
+
+            Class[] parameterTypes = theMethod.getParameterTypes();
+           
+            StringBuilder parameterString = new StringBuilder();
+
+            for (int k = 0; k < parameterTypes.length; k++) 
+            {
+                parameterString.append(parameterTypes[k].getName());
+                parameterString.append(", ");
+            }
+            String finalString = parameterString.toString();
+            model.addRow(new Object[]{methodString, returnString, finalString});
+        }        
+    }
+
+    void printClassProperties(Class c) 
+    {
+        DefaultTableModel model = (DefaultTableModel) classVariablesTable.getModel();
+        
+        int m = c.getModifiers();
+        StringBuilder modifierString = new StringBuilder();
+
+        if (Modifier.isPublic(m))
+          modifierString.append("public ");
+        if (Modifier.isAbstract(m))
+          modifierString.append("abstract ");
+        if (Modifier.isFinal(m))
+          modifierString.append("final ");
+
+        modifierString.append("class ");
+        String finalString = modifierString.toString();
+
+        String classNameString = c.getName();
+        model.addRow(new Object[]{classNameString.toUpperCase(), finalString.toUpperCase()});
+
+        
+        Field[] theFields = c.getFields();
+        for (Field theField : theFields) 
+        {
+            String nameString = theField.getName();
+            String typeString = theField.getType().toString();
+            model.addRow(new Object[]{nameString, typeString});
+        }
+        
+    }
+
 
     /**
      * Creates new form Window
      */
-    public Window() {
+    public Window() 
+    {
         initComponents();
     }
 
@@ -30,35 +113,36 @@ public class Window extends javax.swing.JFrame {
         jSeparator1 = new javax.swing.JSeparator();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        classMethodsTable = new javax.swing.JTable();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
+        classVariablesTable = new javax.swing.JTable();
         jPanel2 = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        loadClassButton = new javax.swing.JButton();
+        unloadClassButton = new javax.swing.JButton();
         jSeparator2 = new javax.swing.JSeparator();
-        jButton3 = new javax.swing.JButton();
+        runMethodButton = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        classNameField = new javax.swing.JTextField();
+        jFileChooser1 = new javax.swing.JFileChooser();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Custom Class Loader");
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Class properties"));
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        classMethodsTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Method Name", "Parameters"
+                "Method Name", "Return Type", "Parameters"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class
+                java.lang.String.class, java.lang.Object.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, true
+                false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -69,12 +153,14 @@ public class Window extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane1.setViewportView(jTable1);
-        if (jTable1.getColumnModel().getColumnCount() > 0) {
-            jTable1.getColumnModel().getColumn(0).setResizable(false);
+        jScrollPane1.setViewportView(classMethodsTable);
+        if (classMethodsTable.getColumnModel().getColumnCount() > 0) {
+            classMethodsTable.getColumnModel().getColumn(0).setResizable(false);
+            classMethodsTable.getColumnModel().getColumn(1).setResizable(false);
+            classMethodsTable.getColumnModel().getColumn(2).setResizable(false);
         }
 
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+        classVariablesTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -90,18 +176,18 @@ public class Window extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane2.setViewportView(jTable2);
-        if (jTable2.getColumnModel().getColumnCount() > 0) {
-            jTable2.getColumnModel().getColumn(0).setResizable(false);
-            jTable2.getColumnModel().getColumn(1).setResizable(false);
+        jScrollPane2.setViewportView(classVariablesTable);
+        if (classVariablesTable.getColumnModel().getColumnCount() > 0) {
+            classVariablesTable.getColumnModel().getColumn(0).setResizable(false);
+            classVariablesTable.getColumnModel().getColumn(1).setResizable(false);
         }
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 476, Short.MAX_VALUE)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 339, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -109,57 +195,82 @@ public class Window extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 310, Short.MAX_VALUE))
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Actions"));
 
-        jButton1.setText("Load Class");
+        loadClassButton.setText("Load Class");
+        loadClassButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                loadClassButtonActionPerformed(evt);
+            }
+        });
 
-        jButton2.setText("Unload Class");
+        unloadClassButton.setText("Unload Class");
+        unloadClassButton.setEnabled(false);
+        unloadClassButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                unloadClassButtonActionPerformed(evt);
+            }
+        });
 
-        jButton3.setText("Run Method");
+        runMethodButton.setText("Get properties");
+        runMethodButton.setEnabled(false);
+        runMethodButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                runMethodButtonActionPerformed(evt);
+            }
+        });
 
         jLabel1.setText("Class name:");
+
+        classNameField.setEditable(false);
+
+        jFileChooser1.setCurrentDirectory(new java.io.File("C:\\Users\\Norbert\\Desktop\\classes"));
+        jFileChooser1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jFileChooser1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(38, 38, 38)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jButton2)
-                    .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(44, Short.MAX_VALUE))
             .addComponent(jSeparator2, javax.swing.GroupLayout.Alignment.TRAILING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTextField1)
+                    .addComponent(classNameField)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(43, 43, 43)
-                        .addComponent(jLabel1)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel1)
+                            .addComponent(runMethodButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(loadClassButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(unloadClassButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 264, Short.MAX_VALUE)))
                 .addContainerGap())
+            .addComponent(jFileChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(100, 100, 100)
+                .addContainerGap()
                 .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(126, 126, 126)
+                .addGap(18, 18, 18)
+                .addComponent(classNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(loadClassButton)
+                .addGap(18, 18, 18)
+                .addComponent(runMethodButton)
+                .addGap(18, 18, 18)
+                .addComponent(unloadClassButton)
+                .addGap(18, 18, 18)
                 .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(120, 120, 120)
-                .addComponent(jButton1)
-                .addGap(18, 18, 18)
-                .addComponent(jButton3)
-                .addGap(18, 18, 18)
-                .addComponent(jButton2)
-                .addContainerGap(155, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jFileChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -168,9 +279,9 @@ public class Window extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -186,10 +297,62 @@ public class Window extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jFileChooser1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jFileChooser1ActionPerformed
+        // TODO add your handling code here:
+        String filepath = jFileChooser1.getSelectedFile().getAbsolutePath();
+        classNameField.setText(filepath);
+    }//GEN-LAST:event_jFileChooser1ActionPerformed
+
+    private void loadClassButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadClassButtonActionPerformed
+        // TODO add your handling code here:
+        String filepath = classNameField.getText();
+        String[] ext = filepath.split("\\.(?=[^\\.]+$)");
+        
+        if(Objects.equals("class", ext[1]))
+        {
+            classPath = filepath;
+            workingClass = loadClass(classPath);
+            System.err.println("Class loaded at directory: " + filepath);
+            runMethodButton.setEnabled(true);
+            unloadClassButton.setEnabled(true);            
+        }
+        
+        else
+        {
+            System.err.println("Selected file is not a class!");
+        }
+    }//GEN-LAST:event_loadClassButtonActionPerformed
+
+    private void runMethodButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runMethodButtonActionPerformed
+        // TODO add your handling code here:
+        printClassMethods(workingClass);
+        printClassProperties(workingClass);
+
+    }//GEN-LAST:event_runMethodButtonActionPerformed
+
+    private void unloadClassButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_unloadClassButtonActionPerformed
+        // TODO add your handling code here:
+        DefaultTableModel model = (DefaultTableModel) classMethodsTable.getModel();
+        model.setRowCount(0);
+        
+        model = (DefaultTableModel) classVariablesTable.getModel();
+        model.setRowCount(0);
+        
+        classNameField.setText("");
+        runMethodButton.setEnabled(false);
+        unloadClassButton.setEnabled(false);            
+
+        classPath = null;
+        workingClass = null;
+        Runtime r = Runtime.getRuntime();
+        r.gc(); // request garbage collection  
+
+    }//GEN-LAST:event_unloadClassButtonActionPerformed
+
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(String args[]) throws ClassNotFoundException {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -222,9 +385,10 @@ public class Window extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
+    private javax.swing.JTable classMethodsTable;
+    private javax.swing.JTextField classNameField;
+    private javax.swing.JTable classVariablesTable;
+    private javax.swing.JFileChooser jFileChooser1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
@@ -232,8 +396,8 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTable jTable2;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JButton loadClassButton;
+    private javax.swing.JButton runMethodButton;
+    private javax.swing.JButton unloadClassButton;
     // End of variables declaration//GEN-END:variables
 }

@@ -32,3 +32,6 @@ hs_err_pid*
 /lab02/nbproject/private/
 /lab02/build/
 /lab02/dist/
+/TestLab/nbproject/private/
+/TestLab/build/
+/TestLab/dist/
