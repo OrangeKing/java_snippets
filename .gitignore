@@ -57,3 +57,6 @@ hs_err_pid*
 /WeatherEditor/nbproject/private/
 /WeatherEditor/build/
 /WeatherEditor/dist/
+/lab04/build/
+/lab_test/nbproject/private/
+/lab_test/build/
