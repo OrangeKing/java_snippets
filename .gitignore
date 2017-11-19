@@ -51,3 +51,9 @@ hs_err_pid*
 /lab03_BeanChecker/build/
 /lab03_alt/dist/
 /lab03_BeanChecker/dist/
+/test_lab/nbproject/private/
+/test_lab/build/
+/test_lab/dist/
+/WeatherEditor/nbproject/private/
+/WeatherEditor/build/
+/WeatherEditor/dist/
