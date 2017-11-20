@@ -57,7 +57,7 @@ public class ArrayJNI
    // Test Driver
    public static void main(String[] args) 
    {
-      if (args.length != 3 )
+      if (args.length < 2 )
       {
          System.out.println("Wrong no. of parameters!");
          System.exit(0);
@@ -66,7 +66,7 @@ public class ArrayJNI
       {
          ArrayJNI lab = new ArrayJNI();
          lab.a = new Double[]{ 11.2, 23.1, 33.3, 4.1, 9.8 };
-         lab.order = Boolean.valueOf(args[1]);
+         lab.order = Boolean.valueOf(args[0]);
 
          System.out.println("Array contents");
          for(Double d : lab.a)
@@ -75,14 +75,14 @@ public class ArrayJNI
          }
 
 
-         switch (Integer.valueOf(args[2])) 
+         switch (Integer.valueOf(args[1])) 
          {
             case 1:  lab.b = lab.multi02(lab.a);
             break;
             case 2:  lab.multi03();
             break;
 
-            default: lab.b = lab.sort01(lab.a, lab.order);
+            case 3: lab.b = lab.sort01(lab.a, lab.order);
             break;
          }
 
