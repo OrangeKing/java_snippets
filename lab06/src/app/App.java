@@ -5,13 +5,26 @@
  */
 package app;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+
 /**
  *
  * @author Norbert
  */
 public class App extends javax.swing.JFrame 
 {
-    private final String textValue = "<h1>Big and Important Header</h1>\n" +
+    String[] scripts = { "colorize", "toupper", "bold"};
+    
+    private final String textValue = "temp\n" +
 "<h2>Slightly Less Big Header</h2>\n" +
 "<h3>Sub-Header</h3>";
     /**
@@ -38,12 +51,14 @@ public class App extends javax.swing.JFrame
         jScrollPane1 = new javax.swing.JScrollPane();
         htmlTextArea = new javax.swing.JTextArea();
         actionsPanel = new javax.swing.JPanel();
-        scriptPathField = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
+        loadScriptButton = new javax.swing.JButton();
+        runScriptButton = new javax.swing.JButton();
+        scriptSelectionCombobox = new javax.swing.JComboBox<>(scripts);
+        outputPanel = new javax.swing.JPanel();
+        htmlLookup = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Nashron app");
 
         htmlPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Custom Html"));
 
@@ -58,24 +73,29 @@ public class App extends javax.swing.JFrame
             htmlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(htmlPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 221, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 630, Short.MAX_VALUE)
                 .addContainerGap())
         );
         htmlPanelLayout.setVerticalGroup(
             htmlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, htmlPanelLayout.createSequentialGroup()
-                .addComponent(jScrollPane1)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 154, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
         actionsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Actions"));
 
-        jButton1.setText("Load Script");
-
-        jButton2.setText("Run Script");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        loadScriptButton.setText("Load Script");
+        loadScriptButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                loadScriptButtonActionPerformed(evt);
+            }
+        });
+
+        runScriptButton.setText("Parse Text");
+        runScriptButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                runScriptButtonActionPerformed(evt);
             }
         });
 
@@ -84,31 +104,48 @@ public class App extends javax.swing.JFrame
         actionsPanelLayout.setHorizontalGroup(
             actionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(actionsPanelLayout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(actionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, actionsPanelLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(scriptSelectionCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(actionsPanelLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(scriptPathField))
-                    .addGroup(actionsPanelLayout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton1)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 80, Short.MAX_VALUE)))
+                        .addComponent(loadScriptButton, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(runScriptButton, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         actionsPanelLayout.setVerticalGroup(
             actionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(actionsPanelLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(scriptPathField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addContainerGap()
+                .addComponent(scriptSelectionCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(actionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2))
-                .addGap(34, 34, 34))
+                    .addComponent(loadScriptButton)
+                    .addComponent(runScriptButton))
+                .addGap(72, 72, 72))
         );
 
-        jLabel1.setText("jLabel1");
+        outputPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Output"));
+
+        htmlLookup.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        htmlLookup.setText("<html>" + this.textValue + "</html>");
+        htmlLookup.setToolTipText("");
+        htmlLookup.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        htmlLookup.setHorizontalTextPosition(javax.swing.SwingConstants.LEFT);
+        htmlLookup.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+
+        javax.swing.GroupLayout outputPanelLayout = new javax.swing.GroupLayout(outputPanel);
+        outputPanel.setLayout(outputPanelLayout);
+        outputPanelLayout.setHorizontalGroup(
+            outputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(htmlLookup, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        outputPanelLayout.setVerticalGroup(
+            outputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(htmlLookup, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE)
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -116,11 +153,12 @@ public class App extends javax.swing.JFrame
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(htmlPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(actionsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(outputPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(htmlPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(actionsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -128,20 +166,37 @@ public class App extends javax.swing.JFrame
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(htmlPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(actionsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE)))
+                    .addComponent(htmlPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(actionsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(outputPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-    jLabel1.setText(htmlTextArea.getText());        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
+    private void runScriptButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runScriptButtonActionPerformed
+        // TODO add your handling code here:   
+        htmlLookup.setText("<html>"+htmlTextArea.getText()+"</html>");
+    }//GEN-LAST:event_runScriptButtonActionPerformed
+
+    private void loadScriptButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadScriptButtonActionPerformed
+        // TODO add your handling code here:
+        ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
+        try 
+        {
+            Path currentRelativePath = Paths.get("src/"+scriptSelectionCombobox.getSelectedItem().toString()+".js");
+            engine.eval(new FileReader(currentRelativePath.toAbsolutePath().toString()));
+            Invocable invocable = (Invocable) engine;
+            Object result = invocable.invokeFunction(scriptSelectionCombobox.getSelectedItem().toString(), htmlLookup.getText());
+            htmlLookup.setText(result.toString());
+        }
+        catch (FileNotFoundException | ScriptException | NoSuchMethodException ex) 
+        {
+            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_loadScriptButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -157,12 +212,13 @@ public class App extends javax.swing.JFrame
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel actionsPanel;
+    private javax.swing.JLabel htmlLookup;
     private javax.swing.JPanel htmlPanel;
     private javax.swing.JTextArea htmlTextArea;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField scriptPathField;
+    private javax.swing.JButton loadScriptButton;
+    private javax.swing.JPanel outputPanel;
+    private javax.swing.JButton runScriptButton;
+    private javax.swing.JComboBox<String> scriptSelectionCombobox;
     // End of variables declaration//GEN-END:variables
 }
