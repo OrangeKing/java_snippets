@@ -1,1 +1,0 @@
-kupa = "alejaja{}".format(chuj)
