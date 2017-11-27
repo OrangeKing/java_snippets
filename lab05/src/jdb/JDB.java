@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 /**
  *
@@ -19,7 +20,6 @@ import java.util.ArrayList;
  */
 public class JDB 
 {
-  
     private Connection connect() 
     {
         // SQLite connection string
@@ -177,6 +177,70 @@ public class JDB
             // execute the delete statement
             pstmt.executeUpdate();
 
+        } 
+        catch (SQLException e) 
+        {
+            System.out.println(e.getMessage());
+        }
+    }
+    
+    public void placeOrder(int ItemId, int CustomerId, double price) 
+    {
+        String sql = "INSERT INTO Reservations(ItemId, CustomerId, StartDate, EndDate, Price) VALUES(?,?,?,?,?)";
+ 
+        try (Connection conn = this.connect();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) 
+            {
+                pstmt.setInt(1, ItemId);
+                pstmt.setInt(2, CustomerId);
+                
+                java.sql.Date date = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+                pstmt.setDate(3, date);
+                
+                pstmt.setString(4, "");
+                pstmt.setDouble(5, price);
+                pstmt.executeUpdate();
+            } 
+            catch (SQLException e) 
+            {
+                System.out.println(e.getMessage());
+            }
+    }
+
+    public void withdrawOrder(int id) 
+    {
+        String sql = "DELETE FROM Reservations WHERE id = ?";
+
+        try (Connection conn = this.connect();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setInt(1, id);
+            // execute the delete statement
+            pstmt.executeUpdate();
+
+        } 
+        catch (SQLException e) 
+        {
+            System.out.println(e.getMessage());
+        }
+    }
+    
+    public void completeOrder(int id) 
+    {        
+        String sql = "UPDATE Reservations SET EndDate = ?"
+                + "WHERE id = ?";
+ 
+        try (Connection conn = this.connect();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+ 
+            // set the corresponding param
+            java.sql.Date date = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+            pstmt.setDate(1, date);
+            pstmt.setInt(2, id);
+            
+            // update 
+            pstmt.executeUpdate();
         } 
         catch (SQLException e) 
         {

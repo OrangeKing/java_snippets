@@ -5,6 +5,7 @@
  */
 package jdb;
 
+import com.sun.org.apache.bcel.internal.generic.ObjectType;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,8 +52,8 @@ public class GUI extends javax.swing.JFrame
         removeUserButton = new javax.swing.JButton();
         placeOrderButton = new javax.swing.JButton();
         userOrderTable = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
+        withdrawOrderButton = new javax.swing.JButton();
+        completeOrderButton = new javax.swing.JButton();
         loadDataButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -191,6 +192,11 @@ public class GUI extends javax.swing.JFrame
         });
 
         placeOrderButton.setText("place Order");
+        placeOrderButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                placeOrderButtonActionPerformed(evt);
+            }
+        });
 
         userOrderTable.setText("users orders");
         userOrderTable.addActionListener(new java.awt.event.ActionListener() {
@@ -199,10 +205,20 @@ public class GUI extends javax.swing.JFrame
             }
         });
 
-        jButton4.setText("withdraw Order");
+        withdrawOrderButton.setText("withdraw Order");
+        withdrawOrderButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                withdrawOrderButtonActionPerformed(evt);
+            }
+        });
 
-        jButton5.setBackground(new java.awt.Color(153, 153, 255));
-        jButton5.setText("COMPLETE ORDER");
+        completeOrderButton.setBackground(new java.awt.Color(153, 153, 255));
+        completeOrderButton.setText("COMPLETE ORDER");
+        completeOrderButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                completeOrderButtonActionPerformed(evt);
+            }
+        });
 
         loadDataButton.setText("load Data");
         loadDataButton.addActionListener(new java.awt.event.ActionListener() {
@@ -218,8 +234,8 @@ public class GUI extends javax.swing.JFrame
             .addGroup(actionPanelLayout.createSequentialGroup()
                 .addGap(0, 24, Short.MAX_VALUE)
                 .addGroup(actionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton5)
-                    .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(completeOrderButton)
+                    .addComponent(withdrawOrderButton, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(placeOrderButton, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(actionPanelLayout.createSequentialGroup()
                         .addGap(10, 10, 10)
@@ -246,9 +262,9 @@ public class GUI extends javax.swing.JFrame
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(placeOrderButton, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(withdrawOrderButton, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(completeOrderButton, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(97, 97, 97))
         );
 
@@ -306,6 +322,38 @@ public class GUI extends javax.swing.JFrame
         loadFilteredOrders(id);
     }//GEN-LAST:event_userOrderTableActionPerformed
 
+    private void placeOrderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_placeOrderButtonActionPerformed
+        // TODO add your handling code here:
+        int row = customerListTable.getSelectedRow();
+        int column = customerListTable.getSelectedColumn();
+        Object customer = orderLogTable.getModel().getValueAt(row, column);
+        int customerId = Integer.valueOf(customer.toString());
+        
+        row = carListTable.getSelectedRow();
+        column = carListTable.getSelectedColumn();
+        Object car = carListTable.getModel().getValueAt(row, column);
+        int carId = Integer.valueOf(car.toString());
+
+        
+        System.out.println("Enter  price: ");
+        Scanner scanner = new Scanner(System.in);
+        double price = Double.valueOf(scanner.nextLine());
+
+        database.placeOrder(carId, customerId, price);
+    }//GEN-LAST:event_placeOrderButtonActionPerformed
+
+    private void withdrawOrderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_withdrawOrderButtonActionPerformed
+        int id = orderLogTable.getSelectedRow();
+        database.withdrawOrder(id);
+
+    }//GEN-LAST:event_withdrawOrderButtonActionPerformed
+
+    private void completeOrderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_completeOrderButtonActionPerformed
+        // TODO add your handling code here:
+        int id = orderLogTable.getSelectedRow();
+        database.completeOrder(id);
+    }//GEN-LAST:event_completeOrderButtonActionPerformed
+
     private void loadCustomers()
     {
         DefaultTableModel model = (DefaultTableModel) customerListTable.getModel();
@@ -357,9 +405,6 @@ public class GUI extends javax.swing.JFrame
             model.addRow(Arrays.copyOfRange(rowData, i, i+6));
         }      
     }
-
-    
-
     
     public static void main(String args[]) throws SQLException
     {
@@ -397,10 +442,9 @@ public class GUI extends javax.swing.JFrame
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel actionPanel;
     private javax.swing.JTable carListTable;
+    private javax.swing.JButton completeOrderButton;
     private javax.swing.JTable customerListTable;
     private javax.swing.JPanel dbPanel;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -413,5 +457,6 @@ public class GUI extends javax.swing.JFrame
     private javax.swing.JButton placeOrderButton;
     private javax.swing.JButton removeUserButton;
     private javax.swing.JButton userOrderTable;
+    private javax.swing.JButton withdrawOrderButton;
     // End of variables declaration//GEN-END:variables
 }
