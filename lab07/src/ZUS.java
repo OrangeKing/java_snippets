@@ -1,6 +1,9 @@
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
+import javax.swing.DefaultCellEditor;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.table.DefaultTableModel;
 
 /*
@@ -16,6 +19,8 @@ import javax.swing.table.DefaultTableModel;
 public class ZUS extends javax.swing.JFrame 
 {
     private static int caseCount = 0;
+    private String[] categories = {"PAYMENT", "WITHDRAWAL", "BILLING", "INFORMATION"};
+    private ArrayList<String[]> tasks = new ArrayList<String[]>();
 
     /**
      * Creates new form ZUS
@@ -59,7 +64,7 @@ public class ZUS extends javax.swing.JFrame
                 java.lang.Integer.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, true
+                false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -72,7 +77,12 @@ public class ZUS extends javax.swing.JFrame
         });
         jScrollPane1.setViewportView(caseListTable);
 
-        selectCaseTypeBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        selectCaseTypeBox.setModel(new DefaultComboBoxModel(categories));
+        selectCaseTypeBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                selectCaseTypeBoxActionPerformed(evt);
+            }
+        });
 
         getNumberButton.setText("get NUMBER");
         getNumberButton.addActionListener(new java.awt.event.ActionListener() {
@@ -150,19 +160,82 @@ public class ZUS extends javax.swing.JFrame
     private void getNumberButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getNumberButtonActionPerformed
         
         String caseName = selectCaseTypeBox.getSelectedItem().toString();
+       
         DefaultTableModel model = (DefaultTableModel) caseListTable.getModel();
-        Object rowData[] = new Object[3];
-        rowData[0] = caseCount;
-        rowData[1] = caseName.substring(0, 2) + ZUS.caseCount;
+        
+        String rowData[] = new String[3];
+        rowData[0] = Integer.toString(caseCount);
+        rowData[1] = caseName.substring(0, 2) + "-" + ZUS.caseCount;
         rowData[2] = caseName;
+     
+      
+        if(tasks.size() == 0)
+        {
+            pendingCaseLabel.setText(rowData[1].toString());            
+        }
+
+        
+        tasks.add(rowData);
         model.addRow(rowData); 
+        
         ZUS.caseCount++;
+
     }//GEN-LAST:event_getNumberButtonActionPerformed
 
     private void resolveCaseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resolveCaseButtonActionPerformed
         // TODO add your handling code here:
+        DefaultTableModel model = (DefaultTableModel) caseListTable.getModel();
+        
+        if(getTask(tasks, pendingCaseLabel.getText()) == -1)
+        {
+            System.err.println("No tasks to resolve");
+        }
+        
+        else
+        {
+            for(int i=0; i < ZUS.caseCount;i++)
+            {
+                if(caseListTable.getValueAt(i, 1).equals(pendingCaseLabel.getText()))
+                {
+                    model.removeRow(i);
+                    break;
+                }
+            }
+            
+            tasks.remove(getTask(tasks, pendingCaseLabel.getText()));
+//            ZUS.caseCount--;
+            
+            assignTaskPriority(tasks);
+        }
     }//GEN-LAST:event_resolveCaseButtonActionPerformed
 
+    private void selectCaseTypeBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectCaseTypeBoxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_selectCaseTypeBoxActionPerformed
+
+    private int getTask(ArrayList<String[]> list, String pattern)
+    {
+        for (String[] item : list) 
+        {
+            if(item[1].equals(pattern))
+            {
+                return list.indexOf(item);
+            }
+        }
+        return -1;
+    }
+    
+    private void assignTaskPriority(ArrayList<String[]> list)
+    {
+        if(!list.isEmpty())
+        {
+            Random rand = new Random();
+            String[] randomElement = list.get(rand.nextInt(list.size()));
+            pendingCaseLabel.setText(randomElement[1]);
+        }
+    }
+    
+    
     /**
      * @param args the command line arguments
      */

@@ -1,0 +1,7 @@
+﻿Napisz aplikację z zastosowaniem JDBC, która pozwoli obsłużyć proces wypożyczania samochodów. 
+Program powinien obsłużyć:
+- dostępne samochody
+- klientów
+- cennik 
+- rezerwacje
+- faktyczne wypożyczenia
