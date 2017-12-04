@@ -1,10 +1,19 @@
+package zusapp;
+
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
-import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.table.DefaultTableModel;
+import java.lang.management.ManagementFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
+import javax.management.ObjectName;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -16,8 +25,44 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author Norbert
  */
-public class ZUS extends javax.swing.JFrame 
+public class ZUS extends javax.swing.JFrame implements ZUSMBean
 {
+    @Override
+    public String doConfig()
+    {
+        return "No of cases=" + Integer.toString(this.caseCount);
+    }
+
+    @Override
+    public int getCaseCount() {
+        return caseCount;
+    }
+
+    @Override
+    public void setCaseCount(int caseCount) {
+        ZUS.caseCount = caseCount;
+    }
+
+    @Override
+    public String[] getCategories() {
+        return categories;
+    }
+
+    @Override
+    public void setCategories(String[] categories) {
+        this.categories = categories;
+    }
+
+    @Override
+    public String getPendingCaseLabel() {
+        return pendingCaseLabel.getText();
+    }
+
+    @Override
+    public void setPendingCaseLabel(String pendingCaseLabel) {
+        this.pendingCaseLabel.setText(pendingCaseLabel);
+    }
+    
     private static int caseCount = 0;
     private String[] categories = {"PAYMENT", "WITHDRAWAL", "BILLING", "INFORMATION"};
     private ArrayList<String[]> tasks = new ArrayList<String[]>();
@@ -203,10 +248,12 @@ public class ZUS extends javax.swing.JFrame
             }
             
             tasks.remove(getTask(tasks, pendingCaseLabel.getText()));
-//            ZUS.caseCount--;
             
             assignTaskPriority(tasks);
         }
+        
+        ZUS.caseCount--;
+        
     }//GEN-LAST:event_resolveCaseButtonActionPerformed
 
     private void selectCaseTypeBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectCaseTypeBoxActionPerformed
@@ -239,7 +286,8 @@ public class ZUS extends javax.swing.JFrame
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(String args[]) throws MalformedObjectNameException, InstanceAlreadyExistsException, InstanceAlreadyExistsException, MBeanRegistrationException, NotCompliantMBeanException, InterruptedException 
+    {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -263,12 +311,29 @@ public class ZUS extends javax.swing.JFrame
         }
         //</editor-fold>
 
+        
+        //Get the MBean server
+        MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+        //register the MBean
+        ZUS mBean = new ZUS();
+        ObjectName name = new ObjectName("zusapp.ZUS.jmx:type=ZUSCONFIG");
+        try 
+        {
+            mbs.registerMBean(mBean, name);
+        } 
+        catch (NotCompliantMBeanException ex) 
+        {
+            Logger.getLogger(ZUS.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new ZUS().setVisible(true);
-            }
-        });
+        mBean.setVisible(true);
+        do
+        {
+            Thread.sleep(3000);
+            System.out.println("Case Count="+mBean.getCaseCount());
+        }
+        while(mBean.getCaseCount() !=0);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -281,3 +346,6 @@ public class ZUS extends javax.swing.JFrame
     private javax.swing.JComboBox<String> selectCaseTypeBox;
     // End of variables declaration//GEN-END:variables
 }
+
+
+
