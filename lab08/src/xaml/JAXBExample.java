@@ -27,7 +27,7 @@ public class JAXBExample
 
         try {
 
-              File file = new File("C:\\file.xml");
+              File file = new File("D:\\Projects\\workspace\\lab08\\src\\xamll");
               JAXBContext jaxbContext = JAXBContext.newInstance(Offer.class);
               Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
 
