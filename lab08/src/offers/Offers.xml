@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<offers>
+    <offer>
+        <id>111</id>
+        <name>The Skiis</name>
+        <manufacturer>Alpine</manufacturer>
+        <description>Vague description here</description>
+        <price>12.5</price>
+    </offer>
+    <offer>
+        <id>112</id>
+        <name>Helmet</name>
+        <manufacturer>Nike</manufacturer>
+        <description>Another vague description here</description>
+        <price>36.6</price>
+    </offer>
+</offers>

@@ -76,3 +76,11 @@ hs_err_pid*
 /test_mbean/build/
 /lab08/nbproject/private/
 /lab08/build/
+/jaxb_tut/nbproject/private/
+/jaxb_tut/build/
+/tutlab/nbproject/private/
+/tutlab/build/
+/lab08/dist/
+/JavaFXApplication3/nbproject/private/
+/JavaFXApplication3/dist/
+/JavaFXApplication3/build/
