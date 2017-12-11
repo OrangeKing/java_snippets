@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<offer>
+    <id>1</id>
+    <name>Hello</name>
+    <manufacturer>World</manufacturer>
+    <description>Mega</description>
+    <price>12.0</price>
+</offer>

@@ -28,14 +28,16 @@
         <TextArea fx:id="descriptionField" layoutX="15.0" layoutY="150.0" prefWidth="300.0" prefHeight="100" promptText="description" />
         <TextField fx:id="priceField" layoutX="15.0" layoutY="260.0" prefWidth="300.0" promptText="price" />
         
-        <Button layoutX="860.0" layoutY="30.0" prefWidth="120"  mnemonicParsing="false" onAction="#createOffer" text="Create XML file"/>
-        <Button layoutX="860.0" layoutY="70.0" prefWidth="120"  mnemonicParsing="false" onAction="#createOffer" text="Edit XML file"/>
-        <Button layoutX="860.0" layoutY="110.0" prefWidth="120"  mnemonicParsing="false" onAction="#displayOffer" text="Display offer"/>
-        <Button layoutX="860.0" layoutY="150.0" prefWidth="120"  mnemonicParsing="false" onAction="#styleOffer" text="Style offer"/>
+        <Button layoutX="810.0" layoutY="30.0" prefWidth="120"  mnemonicParsing="false" onAction="#createOffer" text="Create XML file"/>
+        <Button layoutX="810.0" layoutY="70.0" prefWidth="120"  mnemonicParsing="false" onAction="#createOffer" text="Edit XML file"/>
+        <Button layoutX="810.0" layoutY="110.0" prefWidth="120"  mnemonicParsing="false" onAction="#displayOffer" text="Display offer"/>
+        <Button layoutX="810.0" layoutY="150.0" prefWidth="120"  mnemonicParsing="false" onAction="#styleOffer" text="Style offer"/>
+        <Button layoutX="810.0" layoutY="190.0" prefWidth="120"  mnemonicParsing="false" onAction="#displayOfferHTML" text="Display styled"/>
+
 
         <WebView layoutX="360" layoutY="30" prefHeight="400" prefWidth="400" fx:id="html"></WebView>
         
-        <ComboBox fx:id="fruitCombo" layoutX="360" layoutY="480" prefWidth="120.0" promptText="Pick style">
+        <ComboBox fx:id="styleBox" layoutX="360" layoutY="480" prefWidth="120.0" promptText="Pick style">
             <items>
                 <FXCollections fx:factory="observableArrayList">
                   <String fx:value="Apple" />

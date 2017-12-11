@@ -101,6 +101,8 @@ public class Controller
         
         jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         jaxbMarshaller.marshal(offer, file);
+        
+        System.out.println("XML GENERATION SUCCESSFULL");
     }
     
     
@@ -108,6 +110,7 @@ public class Controller
     {
         Offer offer = (Offer) jaxbUnmarshaller.unmarshal(new File("./src/offers/" + nameField.getText() + ".xml"));
         setValues(offer);
+        System.out.println("XML EDIT SUCCESSFULL");
     }
     
     public void displayOffer() throws JAXBException, IOException 
@@ -128,6 +131,8 @@ public class Controller
             htmlText.append(line);
         });
         html.getEngine().loadContent(htmlText.toString());
+        
+        System.out.println(styleBox.getValue());
     }
 
     
@@ -144,5 +149,7 @@ public class Controller
         Transformer transformer = tFactory.newTransformer(style);
         transformer.transform(offer, new StreamResult(htmlFile));
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        
+        System.out.println("STYLED HTML FROM XML SUCCESSFULL");
     }
 }
